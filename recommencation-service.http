@@ -1,0 +1,27 @@
+### GET request to local server
+GET http://localhost:7012/recommendation?productId=1
+###
+
+### GET request to docker
+GET http://localhost:8080/recommendation?productId=1
+###
+
+### GET product from docker
+GET http://localhost:8080/product/3
+###
+
+### GET product from docker
+GET http://localhost:8080/product/non-integer
+###
+
+### GET product from docker
+GET http://localhost:8080/product/-3
+###
+
+### 404
+GET http://localhost:7021/product/13
+###
+
+### 400
+GET http://localhost:7021/product/not-integer
+###

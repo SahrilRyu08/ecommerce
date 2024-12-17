@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="ecommerce.microservice.recomendation-service" target="17" />
+      <module name="ecommerce.microservice.recomendation-service.main" target="17" />
+      <module name="ecommerce.microservice.recomendation-service.test" target="17" />
+      <module name="microservice.api.main" target="17" />
+      <module name="microservice.api.test" target="17" />
+      <module name="microservice.util.main" target="17" />
+      <module name="microservice.util.test" target="17" />
+      <module name="util" target="17" />
+      <module name="util.test" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
