@@ -2,8 +2,25 @@
 GET http://localhost:7010/product-composite/1
 ###
 
+### in docker env = ok
+GET http://localhost:8080/product-composite/1
+###
+
 ### ok
 GET http://localhost:8080/product-composite/123
+###
+
+### ok
+GET http://localhost:8080/product-composite/123
+###
+
+### ok
+GET http://localhost:7010/product-composite/213
+###
+
+### 400 bar request
+
+GET http://localhost:7010/product-composite/invalid-product
 ###
 
 ###

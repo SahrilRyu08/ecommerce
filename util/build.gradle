@@ -18,7 +18,9 @@ repositories {
 }
 
 dependencies {
-    implementation platform("org.springframework.boot:spring-boot-dependencies:3.3.0")
+    implementation platform("org.springframework.boot:spring-boot-dependencies:3.0.4")
+
+    implementation(project(':api'))
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

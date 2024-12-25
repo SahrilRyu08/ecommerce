@@ -7,15 +7,15 @@ public class ProductAggregate {
     private final int productId;
     private final String name;
     private final int weight;
-    private final List<RecomendationSummary> recomendationSummaryList;
+    private final List<RecommendationSummary> recommendationSummaryList;
     private final List<ReviewSummary> reviewSummaryList;
     private final ServiceAddress serviceAddress;
 
-    public ProductAggregate(int productId, String name, int weight, List<RecomendationSummary> recomendationSummaryList, List<ReviewSummary> reviewSummaryList, ServiceAddress serviceAddress) {
+    public ProductAggregate(int productId, String name, int weight, List<RecommendationSummary> recommendationSummaryList, List<ReviewSummary> reviewSummaryList, ServiceAddress serviceAddress) {
         this.productId = productId;
         this.name = name;
         this.weight = weight;
-        this.recomendationSummaryList = recomendationSummaryList;
+        this.recommendationSummaryList = recommendationSummaryList;
         this.reviewSummaryList = reviewSummaryList;
         this.serviceAddress = serviceAddress;
     }
@@ -32,8 +32,8 @@ public class ProductAggregate {
         return weight;
     }
 
-    public List<RecomendationSummary> getRecomendationSummaryList() {
-        return recomendationSummaryList;
+    public List<RecommendationSummary> getRecommendationSummaryList() {
+        return recommendationSummaryList;
     }
 
     public List<ReviewSummary> getReviewSummaryList() {

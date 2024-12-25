@@ -1,6 +1,5 @@
 package microservice.composite.product;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import microservice.api.core.product.Product;
 import microservice.api.core.recomendation.Recommendation;
 import microservice.api.core.review.Review;
@@ -9,29 +8,24 @@ import microservice.api.exceptions.NotFoundException;
 import microservice.composite.product.serivices.ProductCompositeIntegration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.codec.ByteArrayDecoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ProductCompositeServiceApplicationTest {
 
     private final static int PRODUCT_ID_OK = 1;
-    private final static int PRODUCT_ID_NOT_FOUND = 2;
+    private final static int PRODUCT_ID_NOT_FOUND = 213;
     private final static int PRODUCT_ID_INVALID = 3;
 
     @Autowired
@@ -48,7 +42,7 @@ class ProductCompositeServiceApplicationTest {
         ArrayList<Recommendation> recommendations = new ArrayList<>();
         Recommendation recommendation = new Recommendation(PRODUCT_ID_OK,1,"author 1", 1,"content 1", "mock-address");
         recommendations.add(recommendation);
-        when(productCompositeIntegration.getRecomendations(PRODUCT_ID_OK))
+        when(productCompositeIntegration.getRecommendations(PRODUCT_ID_OK))
                 .thenReturn(recommendations);
         ArrayList<Review> reviews = new ArrayList<>();
         Review review = new Review(PRODUCT_ID_OK,1,"author 1", "content 1", "subject 1", "mock-address");
@@ -56,9 +50,9 @@ class ProductCompositeServiceApplicationTest {
         when(productCompositeIntegration.getReviews(PRODUCT_ID_OK))
                 .thenReturn(reviews);
         when(productCompositeIntegration.getProduct(PRODUCT_ID_NOT_FOUND))
-                .thenThrow(new NotFoundException("Not Found"));
+                .thenThrow(new NotFoundException("NOT FOUND:" + PRODUCT_ID_NOT_FOUND));
         when(productCompositeIntegration.getProduct(PRODUCT_ID_INVALID))
-                .thenThrow(new InvalidInputException("Unprocessable Entity"));
+                .thenThrow(new InvalidInputException("INVALID : " + PRODUCT_ID_INVALID));
     }
 
     @Test
@@ -69,7 +63,9 @@ class ProductCompositeServiceApplicationTest {
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBody()
-                .jsonPath("$.productId").isEqualTo(PRODUCT_ID_OK);
+                .jsonPath("$.productId").isEqualTo(PRODUCT_ID_OK)
+                .jsonPath("$.recommendationSummaryList.length()").isEqualTo(1)
+                .jsonPath("$.reviewSummaryList.length()").isEqualTo(1);
     }
 
     @Test
@@ -81,7 +77,7 @@ class ProductCompositeServiceApplicationTest {
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBody()
                 .jsonPath("$.path").isEqualTo("/product-composite/" + PRODUCT_ID_NOT_FOUND)
-                .jsonPath("$.error").isEqualTo("Not Found");
+                .jsonPath("$.message").isEqualTo("NOT FOUND:" + PRODUCT_ID_NOT_FOUND);
     }
 
     @Test
@@ -92,6 +88,19 @@ class ProductCompositeServiceApplicationTest {
                 .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
                 .expectBody()
                 .jsonPath("$.path").isEqualTo("/product-composite/" + PRODUCT_ID_INVALID)
-                .jsonPath("$.error").isEqualTo("Unprocessable Entity");
+                .jsonPath("$.message").isEqualTo("INVALID : " + PRODUCT_ID_INVALID);
+    }
+
+    @Test
+    void getProductWithBadRequest() {
+
+        webTestClient.get().uri("/product-composite/non-integer")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isEqualTo(BAD_REQUEST)
+                .expectHeader().contentType("application/json")
+                .expectBody()
+                .jsonPath("$.path").isEqualTo("/product-composite/non-integer")
+                .jsonPath("$.message").isEqualTo("Type mismatch.");
     }
 }

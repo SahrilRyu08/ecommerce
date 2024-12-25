@@ -1,30 +1,41 @@
 package microservice.core.recommendation.service;
 
-import microservice.api.core.recomendation.RecomendationService;
+import com.mongodb.DuplicateKeyException;
+import microservice.api.core.recomendation.RecommendationService;
 import microservice.api.core.recomendation.Recommendation;
 import microservice.api.exceptions.InvalidInputException;
+import microservice.core.recommendation.persistence.RecommendationEntity;
+import microservice.core.recommendation.persistence.RecommendationRepository;
 import microservice.core.util.ServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.web.exchanges.reactive.HttpExchangesWebFilter;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-public class RecommendationServiceImpl implements RecomendationService {
+public class RecommendationServiceImpl implements RecommendationService {
     private static final Logger logger = LoggerFactory.getLogger(RecommendationServiceImpl.class);
 
     private final ServiceUtil serviceUtil;
 
+    private final RecommendationMapper recommendationMapper;
+
+    private final RecommendationRepository recommendationRepository;
+
+
     @Autowired
-    public RecommendationServiceImpl(ServiceUtil serviceUtil) {
+    public RecommendationServiceImpl(ServiceUtil serviceUtil, RecommendationMapper recommendationMapper, RecommendationRepository recommendationRepository, HttpExchangesWebFilter httpExchangesWebFilter) {
         this.serviceUtil = serviceUtil;
+        this.recommendationMapper = recommendationMapper;
+        this.recommendationRepository = recommendationRepository;
     }
 
     @Override
-    public List<Recommendation> getRecomendations(int productid) {
+    public List<Recommendation> getRecommendations(int productid) {
         logger.info("getRecommendations" + productid);
         if (productid < 0) {
             throw new InvalidInputException("invalid productId " +  productid);
@@ -40,4 +51,24 @@ public class RecommendationServiceImpl implements RecomendationService {
         logger.info("getRecommendations" + recomendationList);
         return recomendationList;
     }
+
+    @Override
+    public Recommendation createRecommendation(Recommendation recommendation) {
+        try {
+            RecommendationEntity recommendationEntity = recommendationMapper.apiToEntity(recommendation);
+            RecommendationEntity recommendationEntity1 = recommendationRepository.save(recommendationEntity);
+            logger.info("createRecommendation" + recommendationEntity1);
+            return recommendationMapper.entityToApi(recommendationEntity1);
+        } catch (DuplicateKeyException e) {
+            throw new InvalidInputException("invalid recommendation " + recommendation);
+
+        }
+    }
+
+    @Override
+    public void deleteRecommendation(int productId) {
+        recommendationRepository.deleteAll(recommendationRepository.findAllByProductId(productId));
+    }
+
+
 }

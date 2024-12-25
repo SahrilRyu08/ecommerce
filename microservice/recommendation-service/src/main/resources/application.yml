@@ -8,6 +8,13 @@ logging:
     root: INFO
     se.magnus: DEBUG
 
+spring:
+  data:
+    mongodb:
+      database: recommendation-db
+      host: localhost
+      port: 27017
+
 ---
 spring:
   config:

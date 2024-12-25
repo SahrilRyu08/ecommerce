@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import microservice.api.core.product.Product;
 import microservice.api.core.product.ProductService;
 import microservice.api.core.recomendation.Recommendation;
-import microservice.api.core.recomendation.RecomendationService;
+import microservice.api.core.recomendation.RecommendationService;
 import microservice.api.core.review.Review;
 import microservice.api.core.review.ReviewService;
 import microservice.api.exceptions.InvalidInputException;
@@ -15,10 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.web.exchanges.reactive.HttpExchangesWebFilter;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -28,11 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
-
 @Component
-public class ProductCompositeIntegration implements ProductService, RecomendationService, ReviewService {
+public class ProductCompositeIntegration implements ProductService, RecommendationService, ReviewService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductCompositeIntegration.class);
 
@@ -41,6 +38,7 @@ public class ProductCompositeIntegration implements ProductService, Recomendatio
     private final String productServiceUrl;
     private final String recommendationServiceUrl;
     private final String reviewServiceUrl;
+    private final HttpExchangesWebFilter httpExchangesWebFilter;
 
 
     @Autowired
@@ -59,12 +57,13 @@ public class ProductCompositeIntegration implements ProductService, Recomendatio
             @Value("${app.review-service.host}")
             String reviewServiceHost,
             @Value("${app.review-service.port}")
-            String reviewServicePort) {
+            String reviewServicePort, HttpExchangesWebFilter httpExchangesWebFilter) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.productServiceUrl = "http://" + productServiceHost + ":" + productServicePort + "/product/";
         this.recommendationServiceUrl = "http://" + recommendationServiceHost + ":" + recommendationServicePort + "/recommendation?productId=";
         this.reviewServiceUrl = "http://" + reviewServiceHost + ":" + reviewServicePort + "/review?productId=";
+        this.httpExchangesWebFilter = httpExchangesWebFilter;
     }
 
     @Override
@@ -73,10 +72,11 @@ public class ProductCompositeIntegration implements ProductService, Recomendatio
             String url = productServiceUrl + productId;
             logger.info("get url: {}", url);
             Product product = restTemplate.getForObject(url, Product.class);
+            assert product != null;
             logger.info("found a product: {}", product.getProductId());
             return product;
         } catch (HttpClientErrorException ex) {
-            switch (HttpStatus.resolve(ex.getStatusCode().value())) {
+            switch (Objects.requireNonNull(HttpStatus.resolve(ex.getStatusCode().value()))) {
                 case NOT_FOUND:
                     throw new NotFoundException(getErrorMessage(ex));
                 case UNPROCESSABLE_ENTITY:
@@ -89,6 +89,27 @@ public class ProductCompositeIntegration implements ProductService, Recomendatio
         }
     }
 
+    @Override
+    public Product createProduct(Product product) {
+        try {
+            return restTemplate.postForObject(productServiceUrl, product, Product.class);
+        } catch (HttpClientErrorException ex) {
+            throw new InvalidInputException(getErrorMessage(ex));
+//            throw handleHttpClientException(ex);
+
+        }
+    }
+
+    @Override
+    public void deleteProduct(int productId) {
+        try {
+            restTemplate.delete(productServiceUrl + "/" + productId);
+        } catch (HttpClientErrorException ex) {
+            throw new InvalidInputException(getErrorMessage(ex));
+        }
+
+    }
+
     private String getErrorMessage(HttpClientErrorException exception) {
         try {
             return objectMapper.readValue(exception.getResponseBodyAsString(), HttpErrorInfo.class).getMessage();
@@ -99,7 +120,7 @@ public class ProductCompositeIntegration implements ProductService, Recomendatio
 
 
     @Override
-    public List<Recommendation> getRecomendations(int productid) {
+    public List<Recommendation> getRecommendations(int productid) {
         try {
             String url = recommendationServiceUrl  + productid;
             logger.info("get url: {}", url);
@@ -114,16 +135,55 @@ public class ProductCompositeIntegration implements ProductService, Recomendatio
     }
 
     @Override
+    public Recommendation createRecommendation(Recommendation recommendation) {
+        try {
+            return restTemplate.postForObject(recommendationServiceUrl, recommendation, Recommendation.class);
+        } catch (HttpClientErrorException ex) {
+            throw new InvalidInputException(getErrorMessage(ex));
+//            throw handleHttpClientException(ex);
+        }
+    }
+
+    @Override
+    public void deleteRecommendation(int productId) {
+        try {
+            restTemplate.delete(recommendationServiceUrl + "?productId=" + productId);
+        } catch (HttpClientErrorException ex) {
+            throw new InvalidInputException(getErrorMessage(ex));
+        }
+    }
+
+    @Override
     public List<Review> getReviews(int productId) {
         try {
             String url = reviewServiceUrl + productId;
             logger.info("get url: {}", url);
             List<Review> body = restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<Review>>() {
             }).getBody();
+
+            logger.info("found a review: {}, productIf: {}", body.size(), productId);
             return body;
         } catch (Exception ex) {
             logger.warn("Got an unexpected HTTP error: {}, will rethrow it", ex.getMessage());
             return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public Review createReview(Review review) {
+        try {
+            return restTemplate.postForObject(reviewServiceUrl, review, Review.class);
+        } catch (HttpClientErrorException ex) {
+            throw new InvalidInputException(getErrorMessage(ex));
+        }
+    }
+
+    @Override
+    public void deleteReview(int productId) {
+        try {
+            restTemplate.delete(reviewServiceUrl + "?productId=" + productId);
+        } catch (HttpClientErrorException ex) {
+            throw new InvalidInputException(getErrorMessage(ex));
         }
     }
 }

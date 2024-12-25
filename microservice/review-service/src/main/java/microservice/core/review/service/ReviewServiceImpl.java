@@ -32,7 +32,8 @@ public class ReviewServiceImpl implements ReviewService {
             throw new InvalidInputException("productId must be greater than zero");
         }
 
-        if (productId == 113) {
+        if (productId == 213) {
+            logger.info("ReviewServiceImpl getReviews: productId=213");
             return new ArrayList<>();
         }
 

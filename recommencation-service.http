@@ -2,6 +2,14 @@
 GET http://localhost:7012/recommendation?productId=1
 ###
 
+### GET request to local server with id -1
+GET http://localhost:7012/recommendation?productId=-1
+###
+
+### GET request to local server with missing parameter
+GET http://localhost:7012/recommendation
+###
+
 ### GET request to docker
 GET http://localhost:8080/recommendation?productId=1
 ###

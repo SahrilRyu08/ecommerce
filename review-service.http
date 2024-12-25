@@ -1,0 +1,31 @@
+### GET request to example server
+GET http://localhost:7021/review?productId=123
+###
+
+### GET request to docker
+GET http://localhost:8080/review?productId=123
+###
+
+### GET request to docker
+GET http://localhost:7013/review?productId=213
+###
+
+### GET product from docker
+GET http://localhost:8080/review/3
+###
+
+### GET product from docker
+GET http://localhost:8080/review/non-integer
+###
+
+### GET product from docker
+GET http://localhost:8080/review/-3
+###
+
+### 404
+GET http://localhost:7021/product/13
+###
+
+### 400
+GET http://localhost:7021/product/not-integer
+###

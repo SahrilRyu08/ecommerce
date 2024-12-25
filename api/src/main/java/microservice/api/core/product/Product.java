@@ -4,7 +4,7 @@ public class Product {
     private final int productId;
     private final String name;
     private final int weight;
-    private final String serviceAddress;
+    private String serviceAddress;
 
     public Product(int productId, String name, int weight, String serviceAddress) {
         this.productId = productId;
@@ -12,6 +12,7 @@ public class Product {
         this.weight = weight;
         this.serviceAddress = serviceAddress;
     }
+
 
     public int getProductId() {
         return productId;
@@ -28,4 +29,10 @@ public class Product {
     public String getServiceAddress() {
         return serviceAddress;
     }
+
+
+    public void setServiceAddress(String serviceAddress) {
+        this.serviceAddress = serviceAddress;
+    }
+
 }

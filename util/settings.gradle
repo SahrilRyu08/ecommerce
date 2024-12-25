@@ -1,1 +1,3 @@
+include ':api'
+project(':api').projectDir = new File("../api")
 rootProject.name = 'util'

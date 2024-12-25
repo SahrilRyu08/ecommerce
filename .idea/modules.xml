@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/microservice/product-composite-service/ecommerce.microservice.product-composite-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/microservice/product-composite-service/ecommerce.microservice.product-composite-service.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/microservice/product-service/ecommerce.microservice.product-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/microservice/product-service/ecommerce.microservice.product-service.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/microservice/product-service/ecommerce.microservice.product-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/microservice/product-service/ecommerce.microservice.product-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/microservice/recommendation-service/ecommerce.microservice.recommendation-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/microservice/recommendation-service/ecommerce.microservice.recommendation-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/microservice/review-service/ecommerce.microservice.review-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/microservice/review-service/ecommerce.microservice.review-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/microservice/review-service/ecommerce.microservice.review-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/microservice/review-service/ecommerce.microservice.review-service.test.iml" />
     </modules>
   </component>
 </project>
