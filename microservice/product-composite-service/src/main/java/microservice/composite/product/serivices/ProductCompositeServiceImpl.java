@@ -30,15 +30,6 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     }
 
     @Override
-    public ProductAggregate getProductAggregate(Integer productId) {
-        Product product = productCompositeIntegration.getProduct(productId);
-        List<Recommendation> recommendations = productCompositeIntegration.getRecommendations(productId);
-        List<Review> reviews = productCompositeIntegration.getReviews(productId);
-
-        return createProductAggregate(product, recommendations, reviews, serviceUtil.getServiceAddress());
-    }
-
-    @Override
     public void createProduct(ProductAggregate productAggregate) {
         try {
             logger.info("Creating product {}", productAggregate.getProductId());
@@ -70,12 +61,21 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     }
 
     @Override
-    public void deleteProduct(Integer producctId) {
-        productCompositeIntegration.deleteProduct(producctId);
-        productCompositeIntegration.deleteRecommendation(producctId);
-        productCompositeIntegration.deleteReview(producctId);
+    public ProductAggregate getProduct(int productId) {
+        Product product = productCompositeIntegration.getProduct(productId);
+        List<Recommendation> recommendations = productCompositeIntegration.getRecommendations(productId);
+        List<Review> reviews = productCompositeIntegration.getReviews(productId);
 
+        return createProductAggregate(product, recommendations, reviews, serviceUtil.getServiceAddress());
     }
+
+    @Override
+    public void deleteProduct(int productId) {
+        productCompositeIntegration.deleteProduct(productId);
+        productCompositeIntegration.deleteRecommendation(productId);
+        productCompositeIntegration.deleteReview(productId);
+    }
+
 
     private ProductAggregate createProductAggregate(Product product, List<Recommendation> recommendations, List<Review> reviews, String serviceAddress) {
             // 1. Setup product info
@@ -86,7 +86,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
             // 2. Copy summary recommendation info, if available
             List<RecommendationSummary> recommendationSummaries =
                     (recommendations == null) ? null : recommendations.stream()
-                            .map(r -> new RecommendationSummary(r.getRecommendationId(), r.getAuthor(), r.getRate(), r.getContent()))
+                            .map(r -> new RecommendationSummary(r.recommendationId(), r.author(), r.rate(), r.content()))
                             .collect(Collectors.toList());
 
             logger.info("recommendation summaries", Arrays.toString(recommendationSummaries.toArray()));
@@ -101,7 +101,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
             // 4. Create info regarding the involved microservices addresses
             String productAddress = product.getServiceAddress();
             String reviewAddress = (reviews != null && reviews.size() > 0) ? reviews.get(0).getServiceAddress() : "";
-            String recommendationAddress = (recommendations != null && recommendations.size() > 0) ? recommendations.get(0).getServiceAddress() : "";
+            String recommendationAddress = (recommendations != null && recommendations.size() > 0) ? recommendations.get(0).serviceAddress() : "";
             ServiceAddress serviceAddresses = new ServiceAddress(serviceAddress, productAddress, reviewAddress, recommendationAddress);
 
             return new ProductAggregate(productId, name, weight, recommendationSummaries, reviewSummaries, serviceAddresses);

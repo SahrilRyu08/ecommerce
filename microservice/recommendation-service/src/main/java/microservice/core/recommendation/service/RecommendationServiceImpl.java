@@ -10,14 +10,13 @@ import microservice.core.util.ServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.web.exchanges.reactive.HttpExchangesWebFilter;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-public class RecommendationServiceImpl implements RecommendationService {
+public class    RecommendationServiceImpl implements RecommendationService {
     private static final Logger logger = LoggerFactory.getLogger(RecommendationServiceImpl.class);
 
     private final ServiceUtil serviceUtil;
@@ -28,7 +27,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
 
     @Autowired
-    public RecommendationServiceImpl(ServiceUtil serviceUtil, RecommendationMapper recommendationMapper, RecommendationRepository recommendationRepository, HttpExchangesWebFilter httpExchangesWebFilter) {
+    public RecommendationServiceImpl(ServiceUtil serviceUtil, RecommendationMapper recommendationMapper, RecommendationRepository recommendationRepository) {
         this.serviceUtil = serviceUtil;
         this.recommendationMapper = recommendationMapper;
         this.recommendationRepository = recommendationRepository;

@@ -45,4 +45,14 @@ public class ReviewServiceImpl implements ReviewService {
         logger.info("ReviewServiceImpl getReviews: productId={}, reviewList={}", productId, reviewList);
         return reviewList;
     }
+
+    @Override
+    public Review createReview(Review review) {
+        return null;
+    }
+
+    @Override
+    public void deleteReview(int productId) {
+
+    }
 }

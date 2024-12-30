@@ -1,18 +1,21 @@
 package microservice.core.recommendation;
 
-import lombok.Data;
 import microservice.core.recommendation.persistence.RecommendationEntity;
 import microservice.core.recommendation.persistence.RecommendationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataMongoTest
 public class RecommendationPersistenceTest {
+
+    private static final Logger log = LoggerFactory.getLogger(RecommendationPersistenceTest.class);
+
 
     @Autowired
     private RecommendationRepository recommendationRepository;
@@ -21,18 +24,33 @@ public class RecommendationPersistenceTest {
     @BeforeEach
     void setUp() {
         recommendationRepository.deleteAll();
-        RecommendationEntity recommendationEntity1 = new RecommendationEntity("1",1L,1,1, "author 1",1, "content 1");
+        RecommendationEntity recommendationEntity1 = new RecommendationEntity(1,1, "author 1",1, "content 1");
         entity = recommendationRepository.save(recommendationEntity1);
         assertEqualsRecommendation(entity, recommendationEntity1);
     }
 
     @Test
     void create() {
-        RecommendationEntity recommendationEntity  = new RecommendationEntity("1",1L,1,1, "author 1",1, "content 1");
+        RecommendationEntity recommendationEntity  = new RecommendationEntity(1,1, "author 1",1, "content 1");
         RecommendationEntity recommendationEntity1 = recommendationRepository.save(recommendationEntity);
         assertEqualsRecommendation(recommendationEntity, recommendationEntity1);
-        assertEquals(2, recommendationEntity1.getVersion());
-        assertEquals("author 1", recommendationEntity1.getAuthor());
+        assertEquals(2, recommendationRepository.count());
+
+    }
+
+
+    @Test
+    void update() {
+        entity.setAuthor("a2");
+        recommendationRepository.save(entity);
+
+        RecommendationEntity recommendationEntity = recommendationRepository.getRecommendationEntityById(entity.getId()).get();
+        assertEquals(1, recommendationEntity.getVersion());
+        assertEquals("a2", recommendationEntity.getAuthor());
+    }
+
+    @Test
+    void delete() {
 
     }
 

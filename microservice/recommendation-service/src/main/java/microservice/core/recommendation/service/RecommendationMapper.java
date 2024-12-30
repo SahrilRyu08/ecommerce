@@ -9,14 +9,15 @@ import org.mapstruct.Mappings;
 @Mapper(componentModel = "spring")
 public interface RecommendationMapper {
     @Mappings({
+            @Mapping(target = "rate", source = "entity.rating"),
             @Mapping(target = "serviceAddress", ignore = true)
     })
-    Recommendation entityToApi(RecommendationEntity recommendationEntity);
+    Recommendation entityToApi(RecommendationEntity entity);
 
     @Mappings({
-            @Mapping(target = "rating", ignore = true),
+            @Mapping(target = "rating", source = "api.rate"),
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "version", ignore = true)
     })
-    RecommendationEntity apiToEntity(Recommendation recommendation);
+    RecommendationEntity apiToEntity(Recommendation api);
 }

@@ -38,8 +38,6 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     private final String productServiceUrl;
     private final String recommendationServiceUrl;
     private final String reviewServiceUrl;
-    private final HttpExchangesWebFilter httpExchangesWebFilter;
-
 
     @Autowired
     public ProductCompositeIntegration(
@@ -57,13 +55,12 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
             @Value("${app.review-service.host}")
             String reviewServiceHost,
             @Value("${app.review-service.port}")
-            String reviewServicePort, HttpExchangesWebFilter httpExchangesWebFilter) {
+            String reviewServicePort) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.productServiceUrl = "http://" + productServiceHost + ":" + productServicePort + "/product/";
         this.recommendationServiceUrl = "http://" + recommendationServiceHost + ":" + recommendationServicePort + "/recommendation?productId=";
         this.reviewServiceUrl = "http://" + reviewServiceHost + ":" + reviewServicePort + "/review?productId=";
-        this.httpExchangesWebFilter = httpExchangesWebFilter;
     }
 
     @Override

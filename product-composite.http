@@ -30,3 +30,23 @@ GET http://localhost:7010/product-composite/13
 ### 404
 GET http://localhost:7010/product-composite/-1
 ###
+
+
+
+### ok
+POST http://localhost:7010/product-composite
+Content-Type: application/json
+
+{
+    "productId" : 1,
+    "name" : "name 1",
+    "weight" : 1,
+    "recommendationSummaryList" : null,
+    "reviewSummaryList" : null,
+    "serviceAddress": null
+}
+
+###
+
+
+DELETE http://localhost:7010/product-composite/1

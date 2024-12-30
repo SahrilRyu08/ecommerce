@@ -1,23 +1,22 @@
 package microservice.core.recommendation.persistence;
 
-import jdk.jfr.DataAmount;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "recommendations")
-@CompoundIndex(name = "prod-rec-id", unique = true, def = "{'productId' : 1, 'recommendationId' : 1}")
+@CompoundIndex(name = "prod-rec-id", unique = true, def = "{'productId': 1, 'recommendationId' : 1}")
 public class RecommendationEntity {
+
     @Id
     private String id;
+
     @Version
-    private Long version;
+    private Integer version;
 
     private int productId;
     private int recommendationId;
@@ -25,9 +24,10 @@ public class RecommendationEntity {
     private int rating;
     private String content;
 
-    public RecommendationEntity(String id, Long version, int productId, int recommendationId, String author, int rating, String content) {
-        this.id = id;
-        this.version = version;
+    public RecommendationEntity() {
+    }
+
+    public RecommendationEntity(int productId, int recommendationId, String author, int rating, String content) {
         this.productId = productId;
         this.recommendationId = recommendationId;
         this.author = author;
@@ -35,59 +35,56 @@ public class RecommendationEntity {
         this.content = content;
     }
 
-    public RecommendationEntity() {
-    }
-
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Long getVersion() {
+    public Integer getVersion() {
         return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
     }
 
     public int getProductId() {
         return productId;
     }
 
-    public void setProductId(int productId) {
-        this.productId = productId;
-    }
-
     public int getRecommendationId() {
         return recommendationId;
-    }
-
-    public void setRecommendationId(int recommendationId) {
-        this.recommendationId = recommendationId;
     }
 
     public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
     public int getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
-
     public String getContent() {
         return content;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
+
+    public void setRecommendationId(int recommendationId) {
+        this.recommendationId = recommendationId;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 
     public void setContent(String content) {
