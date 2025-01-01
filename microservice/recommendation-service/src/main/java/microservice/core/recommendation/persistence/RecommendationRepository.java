@@ -9,7 +9,7 @@ import java.util.Optional;
 
 
 public interface RecommendationRepository extends CrudRepository<RecommendationEntity, Long> {
-    List<RecommendationEntity> findAllByProductId(int productId);
+    List<RecommendationEntity> findByProductId(int productId);
 
     RecommendationEntity findByRecommendationId(int recommendationId);
 

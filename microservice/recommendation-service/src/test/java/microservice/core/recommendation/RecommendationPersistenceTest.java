@@ -8,11 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.OptimisticLockingFailureException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataMongoTest
-public class RecommendationPersistenceTest {
+public class RecommendationPersistenceTest extends MongoDBTest{
 
     private static final Logger log = LoggerFactory.getLogger(RecommendationPersistenceTest.class);
 
@@ -51,7 +53,35 @@ public class RecommendationPersistenceTest {
 
     @Test
     void delete() {
+        recommendationRepository.delete(entity);
+        assertFalse(recommendationRepository.getRecommendationEntityById(entity.getId()).isPresent());
 
+    }
+
+    @Test
+    void duplicateError() {
+        assertThrows(DuplicateKeyException.class, () -> {
+            RecommendationEntity recommendationEntity = new RecommendationEntity(1,1, "author 1",1, "content 1");
+            recommendationRepository.save(recommendationEntity);
+        });
+    }
+
+    @Test
+    void optimisticLockInError() {
+        RecommendationEntity recommendationEntity = recommendationRepository.getRecommendationEntityById(entity.getId()).get();
+        RecommendationEntity recommendationEntity1 = recommendationRepository.getRecommendationEntityById(entity.getId()).get();
+
+        recommendationEntity.setAuthor("author 1");
+        recommendationRepository.save(recommendationEntity);
+
+        assertThrows(OptimisticLockingFailureException.class, () -> {
+            recommendationEntity1.setAuthor("author 2");
+            recommendationRepository.save(recommendationEntity1);
+        });
+
+        RecommendationEntity recommendationEntity2 = recommendationRepository.getRecommendationEntityById(entity.getId()).get();
+        assertEquals(1,recommendationEntity2.getVersion());
+        assertEquals("author 1", recommendationEntity2.getAuthor());
     }
 
     private void assertEqualsRecommendation(RecommendationEntity recommendationEntity, RecommendationEntity recommendationEntity1) {

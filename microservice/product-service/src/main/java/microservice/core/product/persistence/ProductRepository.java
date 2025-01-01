@@ -1,11 +1,10 @@
 package microservice.core.product.persistence;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.List;
 import java.util.Optional;
 
-public interface ProductRepository extends PagingAndSortingRepository<ProductEntity, Long> {
+public interface ProductRepository extends MongoRepository<ProductEntity, Long> {
     Optional<ProductEntity> findAllByProductId(int productId);
 
     void deleteAll();
@@ -14,7 +13,7 @@ public interface ProductRepository extends PagingAndSortingRepository<ProductEnt
 
     Optional<ProductEntity> findById(String id);
 
-    int count();
+    long count();
 
     void delete(ProductEntity saveEntity);
 

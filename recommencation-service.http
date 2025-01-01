@@ -2,6 +2,20 @@
 GET http://localhost:7012/recommendation?productId=1
 ###
 
+### POST request to local server
+POST http://localhost:7012/recommendation
+Content-Type: application/json
+
+{
+  "productId" : 1,
+  "recommendationId": 1,
+  "author": "Author 1",
+  "rate" : 1,
+  "content": "Content 1",
+  "serviceAddress" : ""
+}
+###
+
 ### GET request to local server with id -1
 GET http://localhost:7012/recommendation?productId=-1
 ###

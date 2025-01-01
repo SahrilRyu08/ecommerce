@@ -12,7 +12,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.*;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -32,7 +32,7 @@ class ProductServiceApplicationTest extends MongoDbTest{
     @Test
     void getProductById() {
         int productId = 1;
-        postAndVerifyProduct(productId);
+        postAndVerifyProduct(productId, OK);
         webTestClient.get().uri("/product/" + productId)
                 .exchange()
                 .expectStatus().isOk()
@@ -44,8 +44,12 @@ class ProductServiceApplicationTest extends MongoDbTest{
     @Test
     void duplicateError() {
         int productId = 1;
-        postAndVerifyProduct(productId);
+        postAndVerifyProduct(productId, OK);
         assertTrue(productRepository.findByProductId(productId).isPresent());
+
+        postAndVerifyProduct(productId, UNPROCESSABLE_ENTITY)
+                .jsonPath("$.path").isEqualTo("/product")
+                .jsonPath("$.message").isEqualTo("Duplicate key, Product Id: " + productId);
     }
 
     @Test
@@ -89,14 +93,14 @@ class ProductServiceApplicationTest extends MongoDbTest{
                 .jsonPath("$.message").isEqualTo("Invalid productId: " + productId);
     }
 
-    private void postAndVerifyProduct(int productId) {
+    private WebTestClient.BodyContentSpec postAndVerifyProduct(int productId, HttpStatus status) {
         Product product = new Product(productId, "name " + productId, productId, "SA");
-        webTestClient.post()
+        return webTestClient.post()
                 .uri("/product")
                 .body(Mono.just(product), Product.class)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.OK)
+                .expectStatus().isEqualTo(status)
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBody();
     }

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +21,7 @@ import java.util.stream.IntStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataMongoTest
-public class ProductPersistenceTests {
+public class ProductPersistenceTests extends MongoDbTest{
 
 
     @Autowired
@@ -73,10 +74,10 @@ public class ProductPersistenceTests {
 
     @Test
     void duplicateError() {
-//        assertThrows(DuplicateKeyException.class, () -> {
-//            ProductEntity entity = new ProductEntity(saveEntity.getProductId(), "n", 1);
-//            productRepository.save(entity);
-//        });
+        assertThrows(DuplicateKeyException.class, () -> {
+            ProductEntity entity = new ProductEntity(saveEntity.getProductId(), "n", 1);
+            productRepository.save(entity);
+        });
     }
 
     @Test

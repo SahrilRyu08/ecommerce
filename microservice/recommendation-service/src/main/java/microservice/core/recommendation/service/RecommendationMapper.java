@@ -6,6 +6,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface RecommendationMapper {
     @Mappings({
@@ -20,4 +22,9 @@ public interface RecommendationMapper {
             @Mapping(target = "version", ignore = true)
     })
     RecommendationEntity apiToEntity(Recommendation api);
+
+    List<Recommendation> entityListToApiList( List<RecommendationEntity> entity);
+
+    List<RecommendationEntity> apiListToEntityList(List<Recommendation> api);
+
 }

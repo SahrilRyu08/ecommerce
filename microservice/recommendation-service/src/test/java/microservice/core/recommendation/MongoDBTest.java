@@ -1,5 +1,4 @@
-package microservice.core.product;
-
+package microservice.core.recommendation;
 
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -8,7 +7,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-public abstract class MongoDbTest {
+public abstract class MongoDBTest {
     @Container
     protected static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest");
 

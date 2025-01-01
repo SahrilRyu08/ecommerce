@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-public class    RecommendationServiceImpl implements RecommendationService {
+public class RecommendationServiceImpl implements RecommendationService {
     private static final Logger logger = LoggerFactory.getLogger(RecommendationServiceImpl.class);
 
     private final ServiceUtil serviceUtil;
@@ -56,7 +56,7 @@ public class    RecommendationServiceImpl implements RecommendationService {
         try {
             RecommendationEntity recommendationEntity = recommendationMapper.apiToEntity(recommendation);
             RecommendationEntity recommendationEntity1 = recommendationRepository.save(recommendationEntity);
-            logger.info("createRecommendation" + recommendationEntity1);
+            logger.info("createRecommendation{}", recommendationEntity1);
             return recommendationMapper.entityToApi(recommendationEntity1);
         } catch (DuplicateKeyException e) {
             throw new InvalidInputException("invalid recommendation " + recommendation);
@@ -66,7 +66,7 @@ public class    RecommendationServiceImpl implements RecommendationService {
 
     @Override
     public void deleteRecommendation(int productId) {
-        recommendationRepository.deleteAll(recommendationRepository.findAllByProductId(productId));
+        recommendationRepository.deleteAll(recommendationRepository.findByProductId(productId));
     }
 
 

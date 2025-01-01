@@ -10,6 +10,7 @@ import microservice.api.core.review.Review;
 import microservice.api.core.review.ReviewService;
 import microservice.api.exceptions.InvalidInputException;
 import microservice.api.exceptions.NotFoundException;
+import microservice.core.util.GlobalControllerExceptionHandler;
 import microservice.core.util.HttpErrorInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     private final String productServiceUrl;
     private final String recommendationServiceUrl;
     private final String reviewServiceUrl;
+    private final GlobalControllerExceptionHandler globalControllerExceptionHandler;
 
     @Autowired
     public ProductCompositeIntegration(
@@ -55,12 +57,13 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
             @Value("${app.review-service.host}")
             String reviewServiceHost,
             @Value("${app.review-service.port}")
-            String reviewServicePort) {
+            String reviewServicePort, GlobalControllerExceptionHandler globalControllerExceptionHandler) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.productServiceUrl = "http://" + productServiceHost + ":" + productServicePort + "/product/";
-        this.recommendationServiceUrl = "http://" + recommendationServiceHost + ":" + recommendationServicePort + "/recommendation?productId=";
-        this.reviewServiceUrl = "http://" + reviewServiceHost + ":" + reviewServicePort + "/review?productId=";
+        this.recommendationServiceUrl = "http://" + recommendationServiceHost + ":" + recommendationServicePort + "/recommendation";
+        this.reviewServiceUrl = "http://" + reviewServiceHost + ":" + reviewServicePort + "/review";
+        this.globalControllerExceptionHandler = globalControllerExceptionHandler;
     }
 
     @Override
@@ -91,8 +94,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         try {
             return restTemplate.postForObject(productServiceUrl, product, Product.class);
         } catch (HttpClientErrorException ex) {
-            throw new InvalidInputException(getErrorMessage(ex));
-//            throw handleHttpClientException(ex);
+            throw handleHttpClientException(ex);
 
         }
     }
@@ -134,12 +136,17 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public Recommendation createRecommendation(Recommendation recommendation) {
         try {
-            return restTemplate.postForObject(recommendationServiceUrl, recommendation, Recommendation.class);
+            String url = recommendationServiceUrl;
+            logger.debug("get url: {}", url);
+            Recommendation recommendation1 = restTemplate.postForObject(url, recommendation, Recommendation.class);
+            logger.debug("create recommendation: {}", recommendation1.getProductId());
+            return recommendation1;
         } catch (HttpClientErrorException ex) {
-            throw new InvalidInputException(getErrorMessage(ex));
-//            throw handleHttpClientException(ex);
+            throw handleHttpClientException(ex);
         }
     }
+
+
 
     @Override
     public void deleteRecommendation(int productId) {
@@ -183,4 +190,18 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
             throw new InvalidInputException(getErrorMessage(ex));
         }
     }
+
+    private RuntimeException handleHttpClientException(HttpClientErrorException ex) {
+        switch (Objects.requireNonNull(HttpStatus.resolve(ex.getStatusCode().value()))) {
+            case NOT_FOUND:
+                return new NotFoundException(getErrorMessage(ex));
+            case UNPROCESSABLE_ENTITY:
+                return new InvalidInputException(getErrorMessage(ex));
+            default:
+                logger.warn("Got an unexpected HTTP error : {}, will rethrow it", ex.getStatusCode());
+                logger.warn("Error body: {}", ex.getResponseBodyAsString());
+                return ex;
+        }
+    }
+
 }
